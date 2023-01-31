@@ -1,8 +1,8 @@
-package com.xuecheng.service.impl;
+package com.xuecheng.content.service.impl;
 
-import com.xuecheng.model.po.TeachplanMedia;
-import com.xuecheng.mapper.TeachplanMediaMapper;
-import com.xuecheng.service.TeachplanMediaService;
+import com.xuecheng.content.po.TeachplanMedia;
+import com.xuecheng.content.mapper.TeachplanMediaMapper;
+import com.xuecheng.content.service.TeachplanMediaService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

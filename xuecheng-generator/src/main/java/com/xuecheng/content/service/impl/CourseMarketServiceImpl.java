@@ -1,8 +1,8 @@
-package com.xuecheng.service.impl;
+package com.xuecheng.content.service.impl;
 
-import com.xuecheng.model.po.CourseMarket;
-import com.xuecheng.mapper.CourseMarketMapper;
-import com.xuecheng.service.CourseMarketService;
+import com.xuecheng.content.mapper.CourseMarketMapper;
+import com.xuecheng.content.service.CourseMarketService;
+import com.xuecheng.content.po.CourseMarket;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

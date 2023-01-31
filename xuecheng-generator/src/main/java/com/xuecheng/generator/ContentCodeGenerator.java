@@ -16,12 +16,12 @@ import java.util.Arrays;
 public class ContentCodeGenerator {
 
 	// TODO 修改服务名以及数据表名
-	private static final String SERVICE_NAME = "content";
+	private static final String SERVICE_NAME = "";
 
 	//数据库账号
 	private static final String DATA_SOURCE_USER_NAME  = "root";
 	//数据库密码
-	private static final String DATA_SOURCE_PASSWORD  = "mysql";
+	private static final String DATA_SOURCE_PASSWORD  = "lzxiaohuihui";
 	//生成的表
 	private static final String[] TABLE_NAMES = new String[]{
 //			"mq_message",
@@ -30,10 +30,10 @@ public class ContentCodeGenerator {
 			 "course_market",
 			 "teachplan",
 			 "teachplan_media",
-			 "course_teacher"
+			 "course_teacher",
 //			 "course_publish",
 //			 "course_publish_pre"
-//			"course_category"
+			"course_category"
 	};
 
 	// TODO 默认生成entity，需要生成DTO修改此变量
@@ -49,7 +49,7 @@ public class ContentCodeGenerator {
 		GlobalConfig gc = new GlobalConfig();
 		gc.setFileOverride(true);
 		//生成路径
-		gc.setOutputDir(System.getProperty("user.dir") + "/xuecheng-plus-generator/src/main/java");
+		gc.setOutputDir(System.getProperty("user.dir") + "/xuecheng-generator/src/main/java");
 		gc.setAuthor("itcast");
 		gc.setOpen(false);
 		gc.setSwagger2(false);
@@ -66,7 +66,7 @@ public class ContentCodeGenerator {
 		// 数据库配置
 		DataSourceConfig dsc = new DataSourceConfig();
 		dsc.setDbType(DbType.MYSQL);
-		dsc.setUrl("jdbc:mysql://192.168.101.65:3306/xc148_" + SERVICE_NAME
+		dsc.setUrl("jdbc:mysql://localhost:3306/xuecheng" + SERVICE_NAME
 				+ "?serverTimezone=UTC&useUnicode=true&useSSL=false&characterEncoding=utf8");
 //		dsc.setDriverName("com.mysql.jdbc.Driver");
 		dsc.setDriverName("com.mysql.cj.jdbc.Driver");

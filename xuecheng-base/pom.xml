@@ -10,9 +10,6 @@
 	</parent>
 
 	<artifactId>xuecheng-base</artifactId>
-	<name>xuecheng-base</name>
-	<description>xuecheng-base</description>
-
 
 	<dependencies>
 		<dependency>

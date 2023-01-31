@@ -3,7 +3,7 @@
 <mapper namespace="com.xuecheng.content.mapper.CourseCategoryMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.xuecheng.content.po.CourseCategory">
+    <resultMap id="BaseResultMap" type="com.xuecheng.content.model.po.CourseCategory">
         <id column="id" property="id" />
         <result column="name" property="name" />
         <result column="label" property="label" />
@@ -17,5 +17,16 @@
     <sql id="Base_Column_List">
         id, name, label, parentid, is_show, orderby, is_leaf
     </sql>
+
+    <select id="selectTreeNodes" parameterType="string" resultType="com.xuecheng.content.model.dto.CourseCategoryTreeDto">
+
+        with recursive t1 as (
+            select p.* from course_category p where p.id=#{id}
+            union all
+            select p1.* from course_category p1 inner join t1 on t1.id = p1.parentid
+        )
+        select * from t1 order by t1.id
+
+    </select>
 
 </mapper>

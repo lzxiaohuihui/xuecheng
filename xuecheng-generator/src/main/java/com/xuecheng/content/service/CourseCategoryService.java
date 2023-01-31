@@ -1,6 +1,6 @@
-package com.xuecheng.service;
+package com.xuecheng.content.service;
 
-import com.xuecheng.model.po.CourseCategory;
+import com.xuecheng.content.po.CourseCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

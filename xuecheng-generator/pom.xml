@@ -3,14 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>xuecheng-plus-parent</artifactId>
+        <artifactId>xuecheng-parent</artifactId>
         <groupId>com.xuecheng</groupId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../xuecheng-plus-parent</relativePath>
+        <relativePath>../xuecheng-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>xuecheng-plus-generator</artifactId>
+    <artifactId>xuecheng-generator</artifactId>
 
     <dependencies>
 

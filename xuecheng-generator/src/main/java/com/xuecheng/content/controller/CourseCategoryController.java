@@ -1,8 +1,8 @@
-package com.xuecheng.controller;
+package com.xuecheng.content.controller;
 
+import com.xuecheng.content.service.CourseCategoryService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.xuecheng.service.CourseCategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,5 +19,5 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class CourseCategoryController {
 
     @Autowired
-    private CourseCategoryService  courseCategoryService;
+    private CourseCategoryService courseCategoryService;
 }

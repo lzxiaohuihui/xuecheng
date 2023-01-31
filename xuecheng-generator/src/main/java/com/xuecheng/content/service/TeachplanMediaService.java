@@ -1,6 +1,6 @@
-package com.xuecheng.service;
+package com.xuecheng.content.service;
 
-import com.xuecheng.model.po.TeachplanMedia;
+import com.xuecheng.content.po.TeachplanMedia;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

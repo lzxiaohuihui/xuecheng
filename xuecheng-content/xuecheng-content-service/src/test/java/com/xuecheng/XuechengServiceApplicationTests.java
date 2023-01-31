@@ -1,13 +1,36 @@
 package com.xuecheng;
 
+import com.xuecheng.content.mapper.CourseBaseMapper;
+import com.xuecheng.content.mapper.CourseCategoryMapper;
+import com.xuecheng.content.model.dto.CourseCategoryTreeDto;
+import com.xuecheng.content.model.po.CourseBase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@SpringBootTest
+import java.util.List;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = ContentApplication.class)
 class XuechengServiceApplicationTests {
 
+    @Autowired
+    CourseBaseMapper courseBaseMapper;
+
+    @Autowired
+    CourseCategoryMapper courseCategoryMapper;
+
     @Test
-    void contextLoads() {
+    void testCourseBaseMapper() {
+        CourseBase courseBase = courseBaseMapper.selectById(74L);
+        Assertions.assertNotNull(courseBase);
+    }
+
+    @Test
+    void  testCourseCategoryMapper(){
     }
 
 }

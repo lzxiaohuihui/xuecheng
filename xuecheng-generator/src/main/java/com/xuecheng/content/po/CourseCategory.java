@@ -1,4 +1,4 @@
-package com.xuecheng.model.po;
+package com.xuecheng.content.po;
 
 import java.io.Serializable;
 import lombok.Data;

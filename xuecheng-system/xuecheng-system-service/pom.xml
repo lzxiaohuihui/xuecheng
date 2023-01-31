@@ -3,18 +3,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>xuecheng-plus-system</artifactId>
+        <artifactId>xuecheng-system</artifactId>
         <groupId>com.xuecheng</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>xuecheng-plus-system-service</artifactId>
-    <name>xuecheng-plus-system-service</name>
-    <description>xuecheng-plus-system-service</description>
+    <artifactId>xuecheng-system-service</artifactId>
+    <name>xuecheng-system-service</name>
+    <description>xuecheng-system-service</description>
 
     <dependencies>
         <dependency>
             <groupId>com.xuecheng</groupId>
-            <artifactId>xuecheng-plus-system-model</artifactId>
+            <artifactId>xuecheng-system-model</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
