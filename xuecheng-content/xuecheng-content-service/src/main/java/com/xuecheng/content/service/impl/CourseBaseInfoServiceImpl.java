@@ -11,6 +11,7 @@ import com.xuecheng.content.mapper.CourseCategoryMapper;
 import com.xuecheng.content.mapper.CourseMarketMapper;
 import com.xuecheng.content.model.dto.AddCourseDto;
 import com.xuecheng.content.model.dto.CourseBaseInfoDto;
+import com.xuecheng.content.model.dto.EditCourseDto;
 import com.xuecheng.content.model.dto.QueryCourseParamsDto;
 import com.xuecheng.content.model.po.CourseBase;
 import com.xuecheng.content.model.po.CourseCategory;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.beans.Transient;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,6 +42,9 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
     @Autowired
     private CourseCategoryMapper courseCategoryMapper;
 
+    @Autowired
+
+    private CourseMarketServiceImpl courseMarketService;
 
     @Override
     public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto) {
@@ -154,23 +159,76 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         return getCourseBaseInfo(courseId);
     }
 
-    private CourseBaseInfoDto getCourseBaseInfo(Long id) {
-        CourseBase courseBase = courseBaseMapper.selectById(id);
-        CourseMarket courseMarket = courseMarketMapper.selectById(id);
-        if (courseBase == null) return null;
+    public CourseBaseInfoDto getCourseBaseInfo(long courseId){
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        LambdaQueryWrapper<CourseMarket> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CourseMarket::getId, courseId);
+        CourseMarket courseMarket = courseMarketMapper.selectOne(queryWrapper);
+
+        if (courseBase == null || courseMarket == null) {
+            return null;
+        }
 
         CourseBaseInfoDto courseBaseInfoDto = new CourseBaseInfoDto();
         BeanUtils.copyProperties(courseBase, courseBaseInfoDto);
-        if (courseMarket != null){
-            BeanUtils.copyProperties(courseMarket, courseBaseInfoDto);
-        }
-
-        CourseCategory courseCategory = courseCategoryMapper.selectById(courseBase.getSt());
-        courseBaseInfoDto.setStName(courseCategory.getName());
-
-        CourseCategory courseCategory1 = courseCategoryMapper.selectById(courseBase.getMt());
-        courseBaseInfoDto.setMtName(courseCategory1.getName());
+        courseBaseInfoDto.setPrice(courseMarket.getPrice());
+        courseBaseInfoDto.setCharge(courseMarket.getCharge());
 
         return courseBaseInfoDto;
     }
+
+    @Override
+    @Transactional
+    public CourseBaseInfoDto updateCourseBase(Long companyId, EditCourseDto dto) {
+        Long id = dto.getId();
+        CourseBase courseBase = courseBaseMapper.selectById(id);
+
+        if (!companyId.equals(courseBase.getCompanyId())){
+            XueChengException.cast("只允许修改本机构的课程");
+        }
+
+        BeanUtils.copyProperties(dto, courseBase);
+
+        courseBase.setChangeDate(LocalDateTime.now());
+        courseBaseMapper.updateById(courseBase);
+
+        CourseMarket courseMarket = courseMarketMapper.selectById(id);
+        if (courseMarket == null){
+            courseMarket = new CourseMarket();
+        }
+        BeanUtils.copyProperties(dto,courseMarket);
+
+//        String charge = dto.getCharge();
+//
+//        if(charge.equals("201001")){
+//            BigDecimal r = dto.getPrice();
+//            if (r == null || r.floatValue() <= 0){
+//                XueChengException.cast("课程设置了收费价格不能为空且必须大于0");
+//            }
+//        }
+//
+//
+//        boolean save = courseMarketService.saveOrUpdate(courseMarket);
+
+        saveCourseMarket(courseMarket);
+
+        return getCourseBaseInfo(id);
+    }
+
+
+    private int saveCourseMarket(CourseMarket courseMarket){
+        String charge = courseMarket.getCharge();
+        if(StringUtils.isBlank(charge)){
+            XueChengException.cast("请设置收费规则");
+        }
+        if(charge.equals("201001")){
+            Float price = courseMarket.getPrice();
+            if(price == null || price <=0){
+                XueChengException.cast("课程设置了收费价格不能为空且必须大于0");
+            }
+        }
+        boolean b = courseMarketService.saveOrUpdate(courseMarket);
+        return b?1:-1;
+    }
+
 }
