@@ -210,7 +210,7 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
 //
 //        boolean save = courseMarketService.saveOrUpdate(courseMarket);
 
-        saveCourseMarket(courseMarket);
+        int i = saveCourseMarket(courseMarket);
 
         return getCourseBaseInfo(id);
     }
