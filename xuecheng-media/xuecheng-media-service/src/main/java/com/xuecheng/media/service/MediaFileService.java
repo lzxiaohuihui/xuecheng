@@ -9,6 +9,7 @@ import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -36,6 +37,8 @@ public interface MediaFileService {
                                         String bucket,
                                         String objectName
     );
+    public void addMediaFilesToMinIO(byte[] bytes, String bucket, String objectName);
+    public void addMediaFilesToMinIO(String filePath, String bucket, String objectName);
 
     public RestResponse<Boolean> checkFile(String fileMd5);
     public RestResponse<Boolean> checkChunk(String fileMd5, int chunkIndex);
@@ -43,4 +46,6 @@ public interface MediaFileService {
     public RestResponse<Boolean> mergeChunks(Long companyId,String fileMd5,int chunkTotal,UploadFileParamsDto uploadFileParamsDto);
 
     public MediaFiles getFileById(String id);
+
+    void downloadFileFromMinIO(File originalVideo, String bucket, String filePath);
 }

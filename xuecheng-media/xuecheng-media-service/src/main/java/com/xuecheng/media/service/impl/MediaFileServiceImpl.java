@@ -11,10 +11,12 @@ import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.base.model.RestResponse;
 import com.xuecheng.media.mapper.MediaFilesMapper;
+import com.xuecheng.media.mapper.MediaProcessMapper;
 import com.xuecheng.media.model.dto.QueryMediaParamsDto;
 import com.xuecheng.media.model.dto.UploadFileParamsDto;
 import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
+import com.xuecheng.media.model.po.MediaProcess;
 import com.xuecheng.media.service.MediaFileService;
 import io.minio.*;
 import io.minio.errors.*;
@@ -67,6 +69,9 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     @Autowired
     private MediaFileService currentProxy;
+
+    @Autowired
+    private MediaProcessMapper mediaProcessMapper;
 
     @Override
     public PageResult<MediaFiles> queryMediaFiels(Long companyId, PageParams pageParams, QueryMediaParamsDto queryMediaParamsDto) {
@@ -131,18 +136,27 @@ public class MediaFileServiceImpl implements MediaFileService {
                                         String bucket,
                                         String objectName
     ) {
+        String extension = null;
+        if(objectName.contains(".")){
+            extension = objectName.substring(objectName.lastIndexOf("."));
+        }
+        String contentType = ContentInfoUtil.findExtensionMatch(extension).getMimeType();
         MediaFiles mediaFiles = mediaFilesMapper.selectById(fileMd5);
 
         if (mediaFiles == null) {
             mediaFiles = new MediaFiles();
             BeanUtils.copyProperties(dto, mediaFiles);
-            BeanUtils.copyProperties(dto, mediaFiles);
             mediaFiles.setId(fileMd5);
             mediaFiles.setFileId(fileMd5);
             mediaFiles.setCompanyId(companyId);
+
+            // 图片和mp4文件设置url
+            if (contentType.contains("image") || contentType.contains("mp4")){
+                mediaFiles.setUrl("/" + bucket + "/" + objectName);
+            }
+
             mediaFiles.setBucket(bucket);
             mediaFiles.setFilePath(objectName);
-            mediaFiles.setUrl("/" + bucket + "/" + objectName);
             mediaFiles.setCreateDate(LocalDateTime.now());
             mediaFiles.setStatus("1");
             mediaFiles.setAuditStatus("002003");
@@ -151,12 +165,19 @@ public class MediaFileServiceImpl implements MediaFileService {
             if (insert < 0) {
                 XueChengException.cast("保存文件信息失败");
             }
+            //如果是avi则加入视频处理表
+            if(contentType.equals("video/x-msvideo")){
+                MediaProcess mediaProcess = new MediaProcess();
+                BeanUtils.copyProperties(mediaFiles,mediaProcess);
+                mediaProcess.setStatus("1");
+                mediaProcessMapper.insert(mediaProcess);
+            }
         }
 
         return mediaFiles;
     }
 
-    private void addMediaFilesToMinIO(byte[] bytes, String bucket, String objectName) {
+    public void addMediaFilesToMinIO(byte[] bytes, String bucket, String objectName) {
         //资源的媒体类型
         String contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;//默认未知二进制流
 
@@ -304,7 +325,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         return files;
     }
 
-    private void downloadFileFromMinIO(File file, String bucket, String objectName) {
+    public void downloadFileFromMinIO(File file, String bucket, String objectName) {
         InputStream fileInputStream = null;
         OutputStream fileOutputStream = null;
         try {
@@ -428,7 +449,7 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     }
 
-    private void addMediaFilesToMinIO(String filePath, String bucket, String objectName) {
+    public void addMediaFilesToMinIO(String filePath, String bucket, String objectName) {
         try {
             minioClient.uploadObject(
                     UploadObjectArgs.builder()
