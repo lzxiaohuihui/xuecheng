@@ -1,6 +1,7 @@
 package com.xuecheng.content.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.injector.methods.SelectByMap;
 import com.xuecheng.base.exception.XueChengException;
 import com.xuecheng.content.mapper.CourseBaseMapper;
 import com.xuecheng.content.mapper.CourseMarketMapper;
@@ -40,6 +41,9 @@ public class CoursePublishServiceImpl implements CoursePublishService {
 
     @Resource
     CoursePublishPreMapper coursePublishPreMapper;
+
+    @Resource
+    CoursePublishMapper coursePublishMapper;
 
     @Override
     public CoursePreviewDto getCoursePreviewInfo(Long courseId) {
@@ -97,5 +101,54 @@ public class CoursePublishServiceImpl implements CoursePublishService {
 
         courseBase.setAuditStatus("202003");
         courseBaseMapper.updateById(courseBase);
+    }
+
+    @Override
+    public void publish(Long companyId, Long courseId) {
+        CoursePublishPre coursePublishPre = coursePublishPreMapper.selectById(courseId);
+        if (coursePublishPre == null){
+            XueChengException.cast("请先提交课程审核，审核通过才可以发布");
+        }
+
+        if (!coursePublishPre.getCompanyId().equals(companyId)){
+            XueChengException.cast("不允许提交其它机构的课程");
+        }
+
+        String status = coursePublishPre.getStatus();
+        if (!"202004".equals(status)){
+            XueChengException.cast("操作失败，课程审核通过才可发布");
+        }
+        // 保存课程发布信息
+        saveCoursePublish(courseId);
+        // 保存消息表
+        saveCoursePublishMessage(courseId);
+
+        coursePublishPreMapper.deleteById(courseId);
+    }
+
+    private void saveCoursePublishMessage(Long courseId) {
+    }
+
+    private void saveCoursePublish(Long courseId) {
+        CoursePublishPre coursePublishPre = coursePublishPreMapper.selectById(courseId);
+        if (coursePublishPre == null) {
+            XueChengException.cast("课程预发布数据为空");
+        }
+
+        CoursePublish coursePublish = new CoursePublish();
+        BeanUtils.copyProperties(coursePublishPre, coursePublish);
+        coursePublish.setStatus("203003");
+        CoursePublish coursePublishUpdate = coursePublishMapper.selectById(courseId);
+        if (coursePublishUpdate == null){
+            coursePublishMapper.insert(coursePublish);
+        }
+        else{
+            coursePublishMapper.updateById(coursePublish);
+        }
+
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        courseBase.setStatus("203002");
+        courseBaseMapper.updateById(courseBase);
+
     }
 }
