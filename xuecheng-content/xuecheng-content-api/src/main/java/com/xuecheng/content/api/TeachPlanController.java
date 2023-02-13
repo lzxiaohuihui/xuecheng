@@ -4,7 +4,9 @@ import com.xuecheng.content.model.dto.BindTeachplanMediaDto;
 import com.xuecheng.content.model.dto.SaveTeachPlanDto;
 import com.xuecheng.content.model.dto.TeachPlanDto;
 import com.xuecheng.content.service.TeachPlanService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

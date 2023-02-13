@@ -173,6 +173,8 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         BeanUtils.copyProperties(courseBase, courseBaseInfoDto);
         courseBaseInfoDto.setPrice(courseMarket.getPrice());
         courseBaseInfoDto.setCharge(courseMarket.getCharge());
+        courseBaseInfoDto.setMtName(courseBase.getMt());
+        courseBaseInfoDto.setStName(courseBase.getSt());
 
         return courseBaseInfoDto;
     }
