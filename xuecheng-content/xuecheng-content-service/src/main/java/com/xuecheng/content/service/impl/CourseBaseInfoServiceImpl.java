@@ -175,6 +175,7 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         courseBaseInfoDto.setCharge(courseMarket.getCharge());
         courseBaseInfoDto.setMtName(courseBase.getMt());
         courseBaseInfoDto.setStName(courseBase.getSt());
+        courseBaseInfoDto.setValidDays(365);
 
         return courseBaseInfoDto;
     }
