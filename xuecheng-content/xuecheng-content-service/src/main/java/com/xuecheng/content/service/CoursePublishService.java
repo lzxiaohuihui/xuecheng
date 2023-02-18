@@ -28,4 +28,6 @@ public interface CoursePublishService {
      */
     public void uploadCourseHtml(Long courseId, File file);
 
+    public Boolean saveCourseIndex(Long courseId);
+
 }

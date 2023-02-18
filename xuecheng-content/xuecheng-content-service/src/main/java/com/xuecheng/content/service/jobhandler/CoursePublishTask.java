@@ -1,5 +1,7 @@
 package com.xuecheng.content.service.jobhandler;
 
+import com.xuecheng.content.feignclient.SearchServiceClient;
+import com.xuecheng.content.mapper.CoursePublishMapper;
 import com.xuecheng.content.service.CoursePublishService;
 import com.xuecheng.messagesdk.model.po.MqMessage;
 import com.xuecheng.messagesdk.service.MessageProcessAbstract;
@@ -21,6 +23,12 @@ public class CoursePublishTask extends MessageProcessAbstract {
 
     @Resource
     CoursePublishService coursePublishService;
+
+    @Resource
+    CoursePublishMapper coursePublishMapper;
+
+    @Resource
+    SearchServiceClient searchServiceClient;
 
     @XxlJob("CoursePublishJobHandler")
     public void coursePublishJobHandler() throws Exception{
@@ -81,11 +89,22 @@ public class CoursePublishTask extends MessageProcessAbstract {
     }
 
     private void saveCourseIndex(MqMessage mqMessage, long courseId) {
-        log.debug("保存课程缓存至redis,课程 id:{}",courseId);
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        log.debug("保存课程索引信息,课程 id:{}",courseId);
+        //消息 id
+        Long id = mqMessage.getId();
+        //消息处理的 service
+        MqMessageService mqMessageService = this.getMqMessageService();
+        //消息幂等性处理
+        int stageTwo = mqMessageService.getStageTwo(id);
+        if(stageTwo == 2){
+            log.debug("课程索引已处理直接返回,课程 id:{}",courseId);
+            return ;
         }
+        Boolean result = coursePublishService.saveCourseIndex(courseId);
+        if(result){
+        //保存第一阶段状态
+            mqMessageService.completedStageTwo(id);
+        }
+
     }
 }
