@@ -2,7 +2,10 @@ package com.xuecheng.content.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.injector.methods.SelectByMap;
+import com.xuecheng.base.exception.CommonError;
 import com.xuecheng.base.exception.XueChengException;
+import com.xuecheng.content.config.MultipartSupportConfig;
+import com.xuecheng.content.feignclient.MediaServiceClient;
 import com.xuecheng.content.mapper.CourseBaseMapper;
 import com.xuecheng.content.mapper.CourseMarketMapper;
 import com.xuecheng.content.mapper.CoursePublishMapper;
@@ -17,14 +20,30 @@ import com.xuecheng.content.model.po.CoursePublishPre;
 import com.xuecheng.content.service.CourseBaseInfoService;
 import com.xuecheng.content.service.CoursePublishService;
 import com.xuecheng.content.service.TeachPlanService;
+import com.xuecheng.content.service.jobhandler.CoursePublishTask;
+import com.xuecheng.messagesdk.model.po.MqMessage;
+import com.xuecheng.messagesdk.service.MqMessageService;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 public class CoursePublishServiceImpl implements CoursePublishService {
     @Resource
@@ -44,6 +63,12 @@ public class CoursePublishServiceImpl implements CoursePublishService {
 
     @Resource
     CoursePublishMapper coursePublishMapper;
+
+    @Resource
+    MqMessageService mqMessageService;
+
+    @Resource
+    MediaServiceClient mediaServiceClient;
 
     @Override
     public CoursePreviewDto getCoursePreviewInfo(Long courseId) {
@@ -103,6 +128,7 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         courseBaseMapper.updateById(courseBase);
     }
 
+    @Transactional
     @Override
     public void publish(Long companyId, Long courseId) {
         CoursePublishPre coursePublishPre = coursePublishPreMapper.selectById(courseId);
@@ -126,7 +152,63 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         coursePublishPreMapper.deleteById(courseId);
     }
 
+    @Override
+    public File generateCourseHtml(Long courseId) {
+        //静态化文件
+        File htmlFile = null;
+        try {
+        //配置 freemarker
+            Configuration configuration = new
+                    Configuration(Configuration.getVersion());
+            //加载模板
+            //选指定模板路径,classpath 下 templates 下
+            //得到 classpath 路径
+            String classpath = this.getClass().getResource("/").getPath();
+            configuration.setDirectoryForTemplateLoading(new File(classpath +
+                    "/templates/"));
+            //设置字符编码
+            configuration.setDefaultEncoding("utf-8");
+            //指定模板文件名称
+            Template template = configuration.getTemplate("course_template.ftl");
+            //准备数据
+            CoursePreviewDto coursePreviewInfo =
+                    this.getCoursePreviewInfo(courseId);
+            Map<String, Object> map = new HashMap<>();
+            map.put("model", coursePreviewInfo);
+            //静态化
+            //参数 1:模板,参数 2:数据模型
+            String content =
+                    FreeMarkerTemplateUtils.processTemplateIntoString (template, map);
+            //
+            System.out.println(content);
+            //将静态化内容输出到文件中
+            InputStream inputStream = IOUtils.toInputStream(content);
+            //创建静态化文件
+            htmlFile = File.createTempFile("course",".html");
+            log.debug("课程静态化,生成静态文件:{}",htmlFile.getAbsolutePath());
+            //输出流
+            FileOutputStream outputStream = new FileOutputStream(htmlFile);
+            IOUtils.copy(inputStream, outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return htmlFile;
+    }
+
+    @Override
+    public void uploadCourseHtml(Long courseId, File file) {
+        MultipartFile multipartFile =
+                MultipartSupportConfig.getMultipartFile(file);
+        String course = mediaServiceClient.upload(multipartFile, "course",
+                courseId+".html");
+
+    }
+
     private void saveCoursePublishMessage(Long courseId) {
+        MqMessage mqMessage = mqMessageService.addMessage(CoursePublishTask.MESSAGE_TYPE, String.valueOf(courseId), null, null);
+        if (mqMessage == null){
+            XueChengException.cast(CommonError.UNKOWN_ERROR);
+        }
     }
 
     private void saveCoursePublish(Long courseId) {

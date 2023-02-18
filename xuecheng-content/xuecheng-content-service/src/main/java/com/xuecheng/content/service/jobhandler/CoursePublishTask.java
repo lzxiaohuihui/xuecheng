@@ -1,5 +1,6 @@
 package com.xuecheng.content.service.jobhandler;
 
+import com.xuecheng.content.service.CoursePublishService;
 import com.xuecheng.messagesdk.model.po.MqMessage;
 import com.xuecheng.messagesdk.service.MessageProcessAbstract;
 import com.xuecheng.messagesdk.service.MqMessageService;
@@ -8,6 +9,8 @@ import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -15,6 +18,9 @@ import java.util.concurrent.TimeUnit;
 public class CoursePublishTask extends MessageProcessAbstract {
 
     public static final String MESSAGE_TYPE = "course_publish";
+
+    @Resource
+    CoursePublishService coursePublishService;
 
     @XxlJob("CoursePublishJobHandler")
     public void coursePublishJobHandler() throws Exception{
@@ -40,23 +46,29 @@ public class CoursePublishTask extends MessageProcessAbstract {
 
     }
 
-    private void generateCourseHtml(MqMessage mqMessage, long courseId) {
-      log.debug("开始进行课程静态化， 课程id： {}", courseId);
+    //生成课程静态化页面并上传至文件系统
+    public void generateCourseHtml(MqMessage mqMessage,long courseId){
+        log.debug("开始进行课程静态化,课程 id:{}",courseId);
+        //消息 id
         Long id = mqMessage.getId();
+        //消息处理的 service
         MqMessageService mqMessageService = this.getMqMessageService();
+        //消息幂等性处理
         int stageOne = mqMessageService.getStageOne(id);
-        if (stageOne == 1){
-            log.debug("课程静态化已处理直接返回， 课程id: {}", courseId);
-            return;
+        if(stageOne == 1){
+            log.debug("课程静态化已处理直接返回,课程 id:{}",courseId);
+            return ;
         }
-        try {
-            TimeUnit.SECONDS.sleep(10);
-        }catch (InterruptedException e){
-            throw new RuntimeException(e);
+        //生成静态化页面
+        File file = coursePublishService.generateCourseHtml(courseId);
+        //上传静态化页面
+        if(file!=null){
+            coursePublishService.uploadCourseHtml(courseId,file);
         }
-
+        //保存第一阶段状态
         mqMessageService.completedStageOne(id);
     }
+
 
     private void saveCourseCache(MqMessage mqMessage, long courseId) {
         log.debug("保存课程索引信息， 课程id :{}", courseId);

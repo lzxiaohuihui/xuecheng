@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @EnableSwagger2Doc
 @SpringBootApplication
-@EnableFeignClients(basePackages = "com.xuecheng.content.feignclient")
+@EnableFeignClients(basePackages={"com.xuecheng.content.feignclient"})
 @MapperScan("com.xuecheng.content.mapper")
 @ComponentScan("com.xuecheng")
 public class XuechengApiApplication {
