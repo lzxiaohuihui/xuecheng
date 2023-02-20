@@ -6,7 +6,7 @@ POST {{auth_host}}/auth/oauth/token?client_id=XcWebApp&client_secret=XcWebApp&gr
 
 
 ### auth 密码
-POST {{auth_host}}/auth/oauth/token?client_id=XcWebApp&client_secret=XcWebApp&grant_type=password&username=zhangsan&password=123
+POST {{auth_host}}/auth/oauth/token?client_id=XcWebApp&client_secret=XcWebApp&grant_type=password&username=stu1&password=11111
 
 ###校验 jwt 令牌
 POST {{auth_host}}/auth/oauth/check_token?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsieHVlY2hlbmciXSwidXNlcl9uYW1lIjoiemhhbmdzYW4iLCJzY29wZSI6WyJhbGwiXSwiZXhwIjoxNjc2NzgzNzEzLCJhdXRob3JpdGllcyI6WyJwMSJdLCJqdGkiOiJjODYxYjE4ZS05MDVmLTRkZTMtYjczZi0yNGY4M2QwY2MzYzgiLCJjbGllbnRfaWQiOiJYY1dlYkFwcCJ9.Ojj1AthbhjVvFlfRmQK53m5GU7rt2wOeuVZzZHc5sms
@@ -19,4 +19,3 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsieHVlY2hlb
 
 ### 通过网关访问资源服务
 GET {{gateway_host}}/content/course/2
-Authorization: Bearer aeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsieHVlY2hlbmciXSwidXNlcl9uYW1lIjoiemhhbmdzYW4iLCJzY29wZSI6WyJhbGwiXSwiZXhwIjoxNjc2ODcwMTczLCJhdXRob3JpdGllcyI6WyJwMSJdLCJqdGkiOiI0ZmIyZGQ4ZC0yYTU4LTRiNzQtYTdkYy02OWNhZmViMmY0NDAiLCJjbGllbnRfaWQiOiJYY1dlYkFwcCJ9._8YSCzaXJ36TTZkzsnc4KeMKlF4eLMpqVjz3JQTMddY
