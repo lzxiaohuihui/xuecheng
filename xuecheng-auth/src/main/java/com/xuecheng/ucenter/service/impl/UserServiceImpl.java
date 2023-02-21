@@ -1,9 +1,11 @@
 package com.xuecheng.ucenter.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.xuecheng.ucenter.mapper.XcMenuMapper;
 import com.xuecheng.ucenter.mapper.XcUserMapper;
 import com.xuecheng.ucenter.model.dto.AuthParamsDto;
 import com.xuecheng.ucenter.model.dto.XcUserExt;
+import com.xuecheng.ucenter.model.po.XcMenu;
 import com.xuecheng.ucenter.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Slf4j
 public class UserServiceImpl implements UserDetailsService {
@@ -23,6 +28,9 @@ public class UserServiceImpl implements UserDetailsService {
 
     @Autowired
     ApplicationContext applicationContext;
+
+    @Autowired
+    XcMenuMapper menuMapper;
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
@@ -43,12 +51,23 @@ public class UserServiceImpl implements UserDetailsService {
 
     private UserDetails getUserPrincipal(XcUserExt user) {
         //用户权限,如果不加报 Cannot pass a null GrantedAuthority collection
-        String[] authorities = {"p1"};
         String password = user.getPassword();
+
+        List<String> permissions = new ArrayList<>();
+        for (XcMenu xcMenu : menuMapper.selectPermissionByUserId(user.getId())) {
+            permissions.add(xcMenu.getCode());
+        }
+        if (permissions.size() == 0){
+            permissions.add("p1");
+        }
+        user.setPermissions(permissions);
+
         //为了安全在令牌中不放密码
         user.setPassword(null);
         //将 user 对象转 json
         String userString = JSON.toJSONString(user);
+
+        String[] authorities = permissions.toArray(new String[0]);
         //创建 UserDetails 对象
         UserDetails userDetails = User.withUsername(userString).password("").authorities(authorities).build();
         return userDetails;
