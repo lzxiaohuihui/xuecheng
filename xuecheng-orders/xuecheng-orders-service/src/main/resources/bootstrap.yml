@@ -6,18 +6,18 @@ spring:
       server-addr: 192.168.101.65:8848
       discovery:
         namespace: ${spring.profiles.active}
-        group: xuecheng-plus-project
+        group: xuecheng-project
       config:
         namespace: ${spring.profiles.active}
-        group: xuecheng-plus-project
+        group: xuecheng-project
         file-extension: yaml
         refresh-enabled: true
         shared-configs:
           - data-id: logging-${spring.profiles.active}.yaml
-            group: xuecheng-plus-common
+            group: xuecheng-common
             refresh: true
           - data-id: rabbitmq-${spring.profiles.active}.yaml
-            group: xuecheng-plus-common
+            group: xuecheng-common
             refresh: true
   #profiles默认为dev
   profiles:

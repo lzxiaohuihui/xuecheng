@@ -36,7 +36,7 @@ public class AliPayTest {
         AlipayClient alipayClient = new DefaultAlipayClient(serverUrl, APP_ID, APP_PRIVATE_KEY, "json", CHARSET, ALIPAY_PUBLIC_KEY, sign_type); //获得初始化的AlipayClient
         AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
         JSONObject bizContent = new JSONObject();
-        bizContent.put("out_trade_no", "1577182653344460800");
+        bizContent.put("out_trade_no", "20210320010101016");
 //bizContent.put("trade_no", "2014112611001004680073956707");
         request.setBizContent(bizContent.toString());
         AlipayTradeQueryResponse response = alipayClient.execute(request);
