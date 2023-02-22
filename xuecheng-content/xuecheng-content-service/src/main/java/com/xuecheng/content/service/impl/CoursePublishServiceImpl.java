@@ -98,12 +98,12 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         if ("202003".equals(auditStatus)) {
             XueChengException.cast("当前为等待审核状态,审核完成可以再次提交。");
         }
-        if (!courseBase.getCompanyId().equals(companyId)) {
-            XueChengException.cast("不允许提交其它机构的课程。");
-        }
-        if (StringUtils.isEmpty(courseBase.getPic())) {
-            XueChengException.cast("提交失败，请上传课程图片");
-        }
+//        if (!courseBase.getCompanyId().equals(companyId)) {
+//            XueChengException.cast("不允许提交其它机构的课程。");
+//        }
+//        if (StringUtils.isEmpty(courseBase.getPic())) {
+//            XueChengException.cast("提交失败，请上传课程图片");
+//        }
 
         CoursePublishPre coursePublishPre = new CoursePublishPre();
         CourseBaseInfoDto courseBaseInfo = courseBaseInfoService.getCourseBaseInfo(courseId);

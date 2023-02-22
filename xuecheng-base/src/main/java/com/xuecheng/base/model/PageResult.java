@@ -8,7 +8,6 @@ import java.util.List;
 
 @Data
 @ToString
-
 public class PageResult<T> implements Serializable{
 
     private List<T> items;
@@ -25,5 +24,7 @@ public class PageResult<T> implements Serializable{
         this.page = page;
         this.pageSize = pageSize;
     }
+
+    public PageResult(){}
 }
 

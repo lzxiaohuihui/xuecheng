@@ -2,9 +2,9 @@ package com.xuecheng.learning.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.xuecheng.base.exception.XueChengPlusException;
+import com.xuecheng.base.exception.XueChengException;
 import com.xuecheng.base.model.RestResponse;
-import com.xuecheng.content.model.dto.TeachplanDto;
+import com.xuecheng.content.model.dto.TeachPlanDto;
 import com.xuecheng.content.model.po.CoursePublish;
 import com.xuecheng.learning.feignclient.ContentServiceClient;
 import com.xuecheng.learning.feignclient.MediaServiceClient;
@@ -48,11 +48,11 @@ public class LearningServiceImpl implements LearningService {
       //查询课程信息
       CoursePublish coursepublish = contentServiceClient.getCoursepublish(courseId);
       if(coursepublish==null){
-          XueChengPlusException.cast("课程信息不存在");
+          XueChengException.cast("课程信息不存在");
       }
       //校验学习资格
+      List<TeachPlanDto> teachplans = JSON.parseArray(coursepublish.getTeachplan(),TeachPlanDto.class);
       //判断是否是试学课程
-      List<TeachplanDto> teachplans = JSON.parseArray(coursepublish.getTeachplan(),TeachplanDto.class);
       //试学视频直接返回视频地址
       if(isTeachplanPreview(teachplanId,teachplans)){
           saveLearnRecord(userId,coursepublish,teachplanId);//保存学习记录
@@ -95,10 +95,10 @@ public class LearningServiceImpl implements LearningService {
             Long courseId = coursepublish.getId();
             //找到课程计划对应的名称
             String teachplanName = null;
-            List<TeachplanDto> teachplans = JSON.parseArray(coursepublish.getTeachplan(),TeachplanDto.class);
-            for (TeachplanDto first : teachplans) {
+            List<TeachPlanDto> teachplans = JSON.parseArray(coursepublish.getTeachplan(),TeachPlanDto.class);
+            for (TeachPlanDto first : teachplans) {
                 if(first.getTeachPlanTreeNodes()!=null){
-                    for (TeachplanDto second : first.getTeachPlanTreeNodes()) {
+                    for (TeachPlanDto second : first.getTeachPlanTreeNodes()) {
                         if(second.getId().equals(teachplanId)){
                             teachplanName = second.getPname();
                             break;
@@ -125,10 +125,10 @@ public class LearningServiceImpl implements LearningService {
     }
 
   //判断是不是试学课程
-  private boolean  isTeachplanPreview(Long teachplanId,List<TeachplanDto> teachplans){
-      for (TeachplanDto first : teachplans) {
+  private boolean  isTeachplanPreview(Long teachplanId,List<TeachPlanDto> teachplans){
+      for (TeachPlanDto first : teachplans) {
           if(first.getTeachPlanTreeNodes()!=null){
-              for (TeachplanDto second : first.getTeachPlanTreeNodes()) {
+              for (TeachPlanDto second : first.getTeachPlanTreeNodes()) {
                   if(second.getId().equals(teachplanId)){
                       if(second.getIsPreview().equals("1")){
                           return true;

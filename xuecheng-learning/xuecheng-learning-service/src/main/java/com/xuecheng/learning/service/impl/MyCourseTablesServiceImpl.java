@@ -2,11 +2,8 @@ package com.xuecheng.learning.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xuecheng.base.exception.CommonError;
-import com.xuecheng.base.exception.XueChengPlusException;
-import com.xuecheng.base.exception.CommonError;
-import com.xuecheng.base.exception.XueChengPlusException;
+import com.xuecheng.base.exception.XueChengException;
 import com.xuecheng.base.model.PageResult;
-import com.xuecheng.base.model.RestResponse;
 import com.xuecheng.content.model.po.CoursePublish;
 import com.xuecheng.learning.feignclient.ContentServiceClient;
 import com.xuecheng.learning.mapper.XcChooseCourseMapper;
@@ -55,11 +52,11 @@ public class MyCourseTablesServiceImpl implements MyCourseTablesService {
         //查询课程信息
         CoursePublish coursepublish = contentServiceClient.getCoursepublish(courseId);
         if(coursepublish==null){
-            XueChengPlusException.cast("课程信息不存在");
+            XueChengException.cast("课程信息不存在");
         }
         Long id = coursepublish.getId();
         if(id==null){
-            XueChengPlusException.cast(CommonError.UNKOWN_ERROR);
+            XueChengException.cast(CommonError.UNKOWN_ERROR);
         }
         //课程收费标准
         String charge = coursepublish.getCharge();
@@ -205,7 +202,7 @@ public class MyCourseTablesServiceImpl implements MyCourseTablesService {
         //选课记录完成且未过期可以添加课程到课程表
         String status = xcChooseCourse.getStatus();
         if (!"701001".equals(status)){
-            XueChengPlusException.cast("选课记录未完成，无法添加到课程表");
+            XueChengException.cast("选课记录未完成，无法添加到课程表");
         }
         //查询我的课程表
         XcCourseTables xcCourseTables = getXcCourseTables(xcChooseCourse.getUserId(), xcChooseCourse.getCourseId());
