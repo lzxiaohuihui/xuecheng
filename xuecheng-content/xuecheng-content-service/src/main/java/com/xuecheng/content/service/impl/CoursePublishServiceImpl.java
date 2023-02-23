@@ -277,11 +277,19 @@ public class CoursePublishServiceImpl implements CoursePublishService {
             return coursePublish;
         }
         else {
-            System.out.println("从数据库查....");
-            CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
-            redisTemplate.opsForValue().set("course:" + courseId, JSON.toJSONString(coursePublish), 300, TimeUnit.SECONDS);
+            synchronized (this){
+                jsonString = (String) redisTemplate.opsForValue().get("course:" + courseId);
+                if (jsonString != null){
+                    System.out.println("============从缓存查============");
+                    CoursePublish coursePublish = JSON.parseObject(jsonString, CoursePublish.class);
+                    return coursePublish;
+                }
+                System.out.println("从数据库查....");
+                CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+                redisTemplate.opsForValue().set("course:" + courseId, JSON.toJSONString(coursePublish), 300, TimeUnit.SECONDS);
 
-            return coursePublish;
+                return coursePublish;
+            }
         }
     }
 
