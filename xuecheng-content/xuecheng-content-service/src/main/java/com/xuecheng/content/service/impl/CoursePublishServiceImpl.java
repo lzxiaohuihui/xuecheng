@@ -31,7 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -77,6 +79,9 @@ public class CoursePublishServiceImpl implements CoursePublishService {
 
     @Resource
     SearchServiceClient searchServiceClient;
+
+    @Resource
+    RedisTemplate redisTemplate;
 
     @Override
     public CoursePreviewDto getCoursePreviewInfo(Long courseId) {
@@ -260,6 +265,24 @@ public class CoursePublishServiceImpl implements CoursePublishService {
     @Override
     public CoursePublish getCoursePublish(Long courseId) {
         return coursePublishMapper.selectById(courseId);
+    }
+
+    @Override
+    public CoursePublish getCoursePublishCache(Long courseId) {
+        String jsonString = (String) redisTemplate.opsForValue().get("course:" + courseId);
+        if (StringUtils.isNotEmpty(jsonString)){
+            System.out.println("============从缓存查============");
+            CoursePublish coursePublish = JSON.parseObject(jsonString, CoursePublish.class);
+            return coursePublish;
+        }
+        else {
+            System.out.println("从数据库查....");
+            CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+            if(coursePublish != null){
+                redisTemplate.opsForValue().set("course:" + courseId, JSON.toJSONString(coursePublish));
+            }
+            return coursePublish;
+        }
     }
 
 }

@@ -66,14 +66,13 @@ public class CoursePublishController {
         return null;
 
     }
-
     @ApiOperation("获取课程全部信息")
     @ResponseBody
     @GetMapping("/course/whole/{courseId}")
     public CoursePreviewDto getPreviewInfo(@PathVariable("courseId") Long courseId) {
         //查询课程发布信息
-        CoursePublish coursePublish = coursePublishService.getCoursePublish(courseId);
-
+//        CoursePublish coursePublish = coursePublishService.getCoursePublish(courseId);
+        CoursePublish coursePublish = coursePublishService.getCoursePublishCache(courseId);
         if (coursePublish == null){
             return new CoursePreviewDto();
         }
