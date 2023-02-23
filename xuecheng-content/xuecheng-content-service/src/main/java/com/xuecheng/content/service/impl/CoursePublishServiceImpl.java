@@ -30,6 +30,9 @@ import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -83,6 +86,9 @@ public class CoursePublishServiceImpl implements CoursePublishService {
 
     @Resource
     RedisTemplate redisTemplate;
+
+    @Resource
+    RedissonClient redissonClient;
 
     @Override
     public CoursePreviewDto getCoursePreviewInfo(Long courseId) {
@@ -277,7 +283,9 @@ public class CoursePublishServiceImpl implements CoursePublishService {
             return coursePublish;
         }
         else {
-            synchronized (this){
+            RLock lock = redissonClient.getLock("coursequerylock:" + courseId);
+            lock.lock();
+            try {
                 jsonString = (String) redisTemplate.opsForValue().get("course:" + courseId);
                 if (jsonString != null){
                     System.out.println("============从缓存查============");
@@ -289,6 +297,8 @@ public class CoursePublishServiceImpl implements CoursePublishService {
                 redisTemplate.opsForValue().set("course:" + courseId, JSON.toJSONString(coursePublish), 300, TimeUnit.SECONDS);
 
                 return coursePublish;
+            }finally {
+                lock.unlock();
             }
         }
     }
