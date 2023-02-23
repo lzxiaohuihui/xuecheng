@@ -49,6 +49,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -278,9 +279,8 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         else {
             System.out.println("从数据库查....");
             CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
-            if(coursePublish != null){
-                redisTemplate.opsForValue().set("course:" + courseId, JSON.toJSONString(coursePublish));
-            }
+            redisTemplate.opsForValue().set("course:" + courseId, JSON.toJSONString(coursePublish), 300, TimeUnit.SECONDS);
+
             return coursePublish;
         }
     }
